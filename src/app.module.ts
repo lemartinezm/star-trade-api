@@ -8,6 +8,8 @@ import { User } from './users/entities/user.entity';
 import { ProfileImagesModule } from './profile-images/profile-images.module';
 import { ProfileImage } from './profile-images/entities/profile-image.entity';
 import { AuthModule } from './auth/auth.module';
+import { AccountsModule } from './accounts/accounts.module';
+import { Account } from './accounts/entities/account.entity';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { AuthModule } from './auth/auth.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User, ProfileImage],
+        entities: [User, ProfileImage, Account],
         synchronize: true, // change for production
       }),
       inject: [ConfigService],
@@ -29,6 +31,7 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     ProfileImagesModule,
     AuthModule,
+    AccountsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

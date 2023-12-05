@@ -1,3 +1,4 @@
+import { Account } from 'src/accounts/entities/account.entity';
 import { ProfileImage } from 'src/profile-images/entities/profile-image.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -38,4 +39,7 @@ export class User {
 
   @OneToMany(() => ProfileImage, (profileImage) => profileImage.user)
   profileImages: ProfileImage[];
+
+  @OneToMany(() => Account, (account) => account.user)
+  accounts: Account[];
 }
