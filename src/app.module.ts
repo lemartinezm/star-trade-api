@@ -5,6 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { ProfileImagesModule } from './profile-images/profile-images.module';
+import { ProfileImage } from './profile-images/entities/profile-image.entity';
 
 @Module({
   imports: [
@@ -18,12 +20,13 @@ import { User } from './users/entities/user.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User],
+        entities: [User, ProfileImage],
         synchronize: true, // change for production
       }),
       inject: [ConfigService],
     }),
     UsersModule,
+    ProfileImagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
