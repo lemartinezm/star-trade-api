@@ -6,8 +6,8 @@ export class Account {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  accountNumber: number;
+  @Column({ type: 'varchar', length: 24, unique: true })
+  accountNumber: string;
 
   @Column({ type: 'decimal', precision: 16, scale: 2, default: 0.0 })
   balance: number;
@@ -15,6 +15,6 @@ export class Account {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @ManyToOne(() => User, (user) => user.accounts)
+  @ManyToOne(() => User, (user) => user.accounts, { nullable: false })
   user: User;
 }

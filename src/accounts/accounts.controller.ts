@@ -7,11 +7,12 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
-import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Request } from 'express';
 
 @Controller('accounts')
 @UseGuards(AuthGuard)
@@ -19,8 +20,12 @@ export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Post()
-  create(@Body() createAccountDto: CreateAccountDto) {
-    return this.accountsService.create(createAccountDto);
+  async create(
+    @Req()
+    req: Request & { user: { id: number; email: string; role: string } },
+  ) {
+    const { id: userId } = req.user;
+    return this.accountsService.create(userId);
   }
 
   @Get()
