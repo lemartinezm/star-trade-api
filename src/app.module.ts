@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { ProfileImagesModule } from './profile-images/profile-images.module';
 import { ProfileImage } from './profile-images/entities/profile-image.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ProfileImage } from './profile-images/entities/profile-image.entity';
     }),
     UsersModule,
     ProfileImagesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
