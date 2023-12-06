@@ -2,15 +2,12 @@ import {
   Controller,
   Get,
   Post,
-  Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
   Req,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
-import { UpdateAccountDto } from './dto/update-account.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
 import { TokenPayload } from 'src/auth/interfaces/auth.service';
@@ -44,11 +41,6 @@ export class AccountsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.accountsService.findOneByAccountNumber(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
-    return this.accountsService.update(+id, updateAccountDto);
   }
 
   @Delete(':id')

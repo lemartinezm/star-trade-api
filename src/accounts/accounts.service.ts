@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UpdateAccountDto } from './dto/update-account.dto';
 import { Repository } from 'typeorm';
 import { Account } from './entities/account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -69,10 +68,6 @@ export class AccountsService {
     });
     if (!accountFound) throw new NotFoundException('Account not found');
     return accountFound;
-  }
-
-  update(id: number, updateAccountDto: UpdateAccountDto) {
-    return `This action updates a #${id} account`;
   }
 
   async updateBalance(
