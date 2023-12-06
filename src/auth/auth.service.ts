@@ -4,6 +4,7 @@ import { UsersService } from 'src/users/users.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { TokenPayload } from './interfaces/auth.service';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +30,7 @@ export class AuthService {
     );
     if (!passwordMatches) throw new UnauthorizedException();
 
-    const payload = {
+    const payload: TokenPayload = {
       id: userFound.id,
       email: userFound.email,
       role: userFound.role,

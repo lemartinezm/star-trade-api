@@ -13,6 +13,8 @@ import { AccountsService } from './accounts.service';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
+import { TokenPayload } from 'src/auth/interfaces/auth.service';
+import { UserRole } from 'src/users/entities/user.entity';
 
 @Controller('accounts')
 @UseGuards(AuthGuard)
@@ -22,14 +24,20 @@ export class AccountsController {
   @Post()
   async create(
     @Req()
-    req: Request & { user: { id: number; email: string; role: string } },
+    req: Request & { user: TokenPayload },
   ) {
     const { id: userId } = req.user;
     return this.accountsService.create(userId);
   }
 
   @Get()
-  findAll() {
+  async findAll(
+    @Req()
+    req: Request & { user: TokenPayload },
+  ) {
+    const { id: userId, role } = req.user;
+    if (role === UserRole.USER)
+      return await this.accountsService.findAllByUserId(userId);
     return this.accountsService.findAll();
   }
 

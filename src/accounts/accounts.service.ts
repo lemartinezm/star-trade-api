@@ -36,8 +36,30 @@ export class AccountsService {
     return createdAccount;
   }
 
-  findAll() {
-    return `This action returns all accounts`;
+  async findAll() {
+    const allAccounts = await this.accountsRepository.find({
+      relations: { user: true },
+      select: {
+        id: true,
+        accountNumber: true,
+        balance: true,
+        user: { id: true, name: true, lastName: true, email: true },
+      },
+    });
+    return allAccounts;
+  }
+
+  async findAllByUserId(userId: number) {
+    const accountsFound = await this.accountsRepository.find({
+      where: { user: { id: userId } },
+    });
+
+    if (accountsFound.length === 0)
+      throw new NotFoundException(
+        'No accounts associated with user were found',
+      );
+
+    return accountsFound;
   }
 
   async findOneByAccountNumber(accountNumber: string) {
