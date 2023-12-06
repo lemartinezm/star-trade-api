@@ -1,9 +1,16 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { Repository } from 'typeorm';
 import { Account } from './entities/account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
+import Decimal from 'decimal.js';
+import { UpdateBalanceOperations } from './interfaces/account.service';
 
 @Injectable()
 export class AccountsService {
@@ -33,12 +40,41 @@ export class AccountsService {
     return `This action returns all accounts`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} account`;
+  async findOneByAccountNumber(accountNumber: string) {
+    const accountFound = await this.accountsRepository.findOne({
+      where: { accountNumber },
+      select: { id: true, accountNumber: true, balance: true },
+    });
+    if (!accountFound) throw new NotFoundException('Account not found');
+    return accountFound;
   }
 
   update(id: number, updateAccountDto: UpdateAccountDto) {
     return `This action updates a #${id} account`;
+  }
+
+  async updateBalance(
+    accountNumber: string,
+    amount: number,
+    operation: UpdateBalanceOperations,
+  ) {
+    const account = await this.findOneByAccountNumber(accountNumber);
+
+    // Check if account has enough balance
+    if (
+      account.balance < amount &&
+      operation === UpdateBalanceOperations.SUBTRACT
+    )
+      throw new BadRequestException('Insufficient balance');
+
+    let newBalance: number;
+    if (operation === UpdateBalanceOperations.ADD)
+      newBalance = new Decimal(account.balance).add(amount).toNumber();
+    else newBalance = new Decimal(account.balance).sub(amount).toNumber();
+
+    account.balance = newBalance;
+    const updatedAccount = await this.accountsRepository.save(account);
+    return updatedAccount;
   }
 
   remove(id: number) {
