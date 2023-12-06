@@ -10,6 +10,8 @@ import { ProfileImage } from './profile-images/entities/profile-image.entity';
 import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { Account } from './accounts/entities/account.entity';
+import { TransactionsModule } from './transactions/transactions.module';
+import { Transaction } from './transactions/entities/transaction.entity';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { Account } from './accounts/entities/account.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User, ProfileImage, Account],
+        entities: [User, ProfileImage, Account, Transaction],
         synchronize: true, // change for production
       }),
       inject: [ConfigService],
@@ -32,6 +34,7 @@ import { Account } from './accounts/entities/account.entity';
     ProfileImagesModule,
     AuthModule,
     AccountsModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
