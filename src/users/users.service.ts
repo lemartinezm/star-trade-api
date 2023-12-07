@@ -27,8 +27,17 @@ export class UsersService {
     return await this.usersRepository.findOne({ where: { email } });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    return await this.usersRepository.find({
+      select: {
+        id: true,
+        name: true,
+        lastName: true,
+        email: true,
+        password: false,
+        role: true,
+      },
+    });
   }
 
   findOne(id: number) {
