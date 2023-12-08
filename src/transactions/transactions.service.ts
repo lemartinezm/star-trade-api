@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Repository } from 'typeorm';
@@ -69,6 +69,23 @@ export class TransactionsService {
 
   findAll() {
     return `This action returns all transactions`;
+  }
+
+  async findAllByUserId(userId: number) {
+    const transactionsFound = await this.transactionsRepository.find({
+      where: [
+        { sourceAccount: { user: { id: userId } } },
+        { destinationAccount: { user: { id: userId } } },
+      ],
+      select: {
+        sourceAccount: { accountNumber: true },
+        destinationAccount: { accountNumber: true },
+      },
+      relations: { sourceAccount: true, destinationAccount: true },
+    });
+    if (transactionsFound.length <= 0)
+      throw new NotFoundException('No transactions were found for the user');
+    return transactionsFound;
   }
 
   findOne(id: number) {

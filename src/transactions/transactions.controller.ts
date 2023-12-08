@@ -9,11 +9,14 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  Req,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Request } from 'express';
+import { TokenPayload } from 'src/auth/interfaces/auth.service';
 
 @Controller('transactions')
 @UseGuards(AuthGuard)
@@ -36,8 +39,8 @@ export class TransactionsController {
   }
 
   @Get()
-  findAll() {
-    return this.transactionsService.findAll();
+  findAll(@Req() req: Request & { user: TokenPayload }) {
+    return this.transactionsService.findAllByUserId(req.user.id);
   }
 
   @Get(':id')
