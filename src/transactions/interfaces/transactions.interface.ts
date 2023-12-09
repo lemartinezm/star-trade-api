@@ -5,6 +5,6 @@ export enum TransactionStatus {
 }
 
 export enum TransactionType {
-  INCOME = 'income',
-  EXPENSE = 'expense',
+  INCOMES = 'incomes',
+  EXPENSES = 'expenses',
 }
