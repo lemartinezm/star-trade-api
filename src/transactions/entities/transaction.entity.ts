@@ -1,11 +1,6 @@
 import { Account } from 'src/accounts/entities/account.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-
-export enum TransactionStatus {
-  PENDING = 'pending',
-  FAILED = 'failed',
-  COMPLETED = 'completed',
-}
+import { TransactionStatus } from '../interfaces/transactions.interface';
 
 @Entity()
 export class Transaction {

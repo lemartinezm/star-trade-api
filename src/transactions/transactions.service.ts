@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Repository } from 'typeorm';
-import { Transaction, TransactionStatus } from './entities/transaction.entity';
+import { Transaction } from './entities/transaction.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { UpdateBalanceOperations } from 'src/accounts/interfaces/account.service';
+import { TransactionStatus } from './interfaces/transactions.interface';
 
 @Injectable()
 export class TransactionsService {
@@ -88,12 +88,36 @@ export class TransactionsService {
     return transactionsFound;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+  async findIncomesByUserId(userId: number) {
+    const transactionsFound = await this.transactionsRepository.find({
+      where: [{ destinationAccount: { user: { id: userId } } }],
+      select: {
+        sourceAccount: { accountNumber: true },
+        destinationAccount: { accountNumber: true },
+      },
+      relations: { sourceAccount: true, destinationAccount: true },
+    });
+    if (transactionsFound.length <= 0)
+      throw new NotFoundException('No transactions were found for the user');
+    return transactionsFound;
   }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
+  async findExpensesByUserId(userId: number) {
+    const transactionsFound = await this.transactionsRepository.find({
+      where: [{ sourceAccount: { user: { id: userId } } }],
+      select: {
+        sourceAccount: { accountNumber: true },
+        destinationAccount: { accountNumber: true },
+      },
+      relations: { sourceAccount: true, destinationAccount: true },
+    });
+    if (transactionsFound.length <= 0)
+      throw new NotFoundException('No transactions were found for the user');
+    return transactionsFound;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} transaction`;
   }
 
   remove(id: number) {
