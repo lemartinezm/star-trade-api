@@ -3,8 +3,10 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  Get,
   InternalServerErrorException,
   Post,
+  Req,
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
@@ -12,6 +14,8 @@ import {
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { Request } from 'express';
+import { extractToken } from 'src/utils/auth';
 
 @Controller('auth')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -41,5 +45,18 @@ export class AuthController {
       if (error instanceof ForbiddenException) throw error;
       else throw new InternalServerErrorException();
     }
+  }
+
+  @Get('token')
+  async verifyToken(@Req() request: Request) {
+    const token = extractToken(request);
+    if (!token) throw new UnauthorizedException('Token is missing in headers');
+
+    const isValid = await this.authService.verifyToken(token);
+    if (!isValid) throw new UnauthorizedException('Invalid token');
+
+    return {
+      message: 'Valid token',
+    };
   }
 }
