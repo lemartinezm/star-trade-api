@@ -18,7 +18,7 @@ export class AccountsService {
     private readonly accountsRepository: Repository<Account>,
   ) {}
 
-  async create(userId: number) {
+  async create(userId: number, accountLabel: string | null) {
     const [, numberOfAccountsFromUser] =
       await this.accountsRepository.findAndCount({
         where: { user: { id: userId } },
@@ -31,6 +31,8 @@ export class AccountsService {
     const generatedAccountNumber = this.generateAccountNumber(userId);
     account.accountNumber = generatedAccountNumber;
     account.user = { id: userId } as User;
+    account.accountLabel = accountLabel;
+    account.balance = 500; // Gift balance
     const createdAccount = await this.accountsRepository.save(account);
     return createdAccount;
   }
@@ -43,6 +45,7 @@ export class AccountsService {
         accountNumber: true,
         balance: true,
         user: { id: true, name: true, lastName: true, email: true },
+        accountLabel: true,
       },
     });
     return allAccounts;

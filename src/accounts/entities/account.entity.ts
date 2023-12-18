@@ -13,6 +13,9 @@ export class Account {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  accountLabel: string;
+
   @Column({ type: 'varchar', length: 24, unique: true })
   accountNumber: string;
 

@@ -6,15 +6,20 @@ import {
   Delete,
   UseGuards,
   Req,
+  Body,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
 import { TokenPayload } from 'src/auth/interfaces/auth.service';
 import { UserRole } from 'src/users/entities/user.entity';
+import { CreateAccountDto } from './dto/create-account.dto';
 
 @Controller('accounts')
 @UseGuards(AuthGuard)
+@UsePipes(new ValidationPipe({ transform: true }))
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
@@ -22,9 +27,11 @@ export class AccountsController {
   async create(
     @Req()
     req: Request & { user: TokenPayload },
+    @Body()
+    createAccountDto: CreateAccountDto,
   ) {
     const { id: userId } = req.user;
-    return this.accountsService.create(userId);
+    return this.accountsService.create(userId, createAccountDto.accountLabel);
   }
 
   @Get()
