@@ -82,6 +82,7 @@ export class TransactionsService {
         destinationAccount: { accountNumber: true },
       },
       relations: { sourceAccount: true, destinationAccount: true },
+      order: { createdAt: 'DESC' },
     });
     if (transactionsFound.length <= 0)
       throw new NotFoundException('No transactions were found for the user');
