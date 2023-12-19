@@ -18,6 +18,7 @@ import { Request } from 'express';
 import { extractToken } from 'src/utils/auth';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
@@ -79,6 +80,12 @@ export class AuthController {
   }
 
   @Get('token')
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Valid token',
+    schema: { type: 'object', example: { message: 'Valid token' } },
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized', type: ApiException })
   async verifyToken(@Req() request: Request) {
     const token = extractToken(request);
     if (!token) throw new UnauthorizedException('Token is missing in headers');
