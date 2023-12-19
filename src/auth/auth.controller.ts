@@ -27,7 +27,6 @@ import {
 import { User } from 'src/users/entities/user.entity';
 import { ApiException } from 'src/utils/exception.entity';
 
-// TODO: terminar la doc con swagger
 @ApiTags('Auth')
 @Controller('auth')
 @UsePipes(new ValidationPipe({ transform: true }))
