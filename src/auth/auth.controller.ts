@@ -19,7 +19,9 @@ import { extractToken } from 'src/utils/auth';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { User } from 'src/users/entities/user.entity';
 import { ApiException } from 'src/utils/exception.entity';
@@ -47,6 +49,21 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOkResponse({
+    description: 'User logged in',
+    schema: {
+      type: 'object',
+      example: { accessToken: 'token' },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Something went wrong',
+    type: ApiException,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ApiException,
+  })
   async loginUser(@Body() loginUserDto: LoginUserDto) {
     try {
       const token = await this.authService.generateToken(loginUserDto);

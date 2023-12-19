@@ -6,12 +6,17 @@ export class ApiException {
     isArray: true,
     description: 'Errors description',
     example: ['Error 1', 'Error 2'],
+    required: false,
   })
-  message: string | string[];
+  message?: string | string[];
 
-  @ApiProperty({ description: 'Status code message', example: 'Bad Request' })
+  @ApiProperty({
+    description: 'Status code message',
+    example: 'Bad Request',
+    required: false,
+  })
   error: string;
 
-  @ApiProperty({ description: 'Status code', example: 400 })
+  @ApiProperty({ description: 'Status code', example: 400, required: false })
   statusCode: number;
 }

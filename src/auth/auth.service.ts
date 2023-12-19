@@ -24,13 +24,15 @@ export class AuthService {
     const userFound = await this.usersService.findOneByEmail(
       loginUserDto.email,
     );
-    if (!userFound) throw new UnauthorizedException();
+    if (!userFound)
+      throw new UnauthorizedException('Invalid email or password');
 
     const passwordMatches = await bcrypt.compare(
       loginUserDto.password,
       userFound.password,
     );
-    if (!passwordMatches) throw new UnauthorizedException();
+    if (!passwordMatches)
+      throw new UnauthorizedException('Invalid email or password');
 
     const payload: TokenPayload = {
       id: userFound.id,
