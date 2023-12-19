@@ -10,7 +10,6 @@ async function bootstrap() {
       'Star Trade API is an open source API for digital banking made to practice.',
     )
     .setVersion('0.0.1')
-    .addTag('star-trade')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

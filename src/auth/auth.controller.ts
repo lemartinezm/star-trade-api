@@ -16,13 +16,27 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Request } from 'express';
 import { extractToken } from 'src/utils/auth';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { User } from 'src/users/entities/user.entity';
+import { ApiException } from 'src/utils/exception.entity';
 
+// TODO: terminar la doc con swagger
+@ApiTags('Auth')
 @Controller('auth')
 @UsePipes(new ValidationPipe({ transform: true }))
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @ApiCreatedResponse({ description: 'User created', type: User })
+  @ApiBadRequestResponse({
+    description: 'Something went wrong',
+    type: ApiException,
+  })
   async registerUser(@Body() createUserDto: CreateUserDto) {
     try {
       const userCreated = await this.authService.register(createUserDto);
