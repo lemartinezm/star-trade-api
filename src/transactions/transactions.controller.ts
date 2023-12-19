@@ -17,14 +17,36 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
 import { TokenPayload } from 'src/auth/interfaces/auth.service';
 import { TransactionType } from './interfaces/transactions.interface';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Transaction } from './entities/transaction.entity';
+import { ApiException } from 'src/utils/exception.entity';
 
 @Controller('transactions')
 @UseGuards(AuthGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
+@ApiTags('Transactions')
+@ApiBearerAuth()
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
+  @ApiCreatedResponse({ description: 'Transaction created', type: Transaction })
+  @ApiBadRequestResponse({
+    description: 'Something went wrong',
+    type: ApiException,
+  })
+  @ApiNotFoundResponse({
+    description: 'Account number not found',
+    type: ApiException,
+  })
   async create(@Body() createTransactionDto: CreateTransactionDto) {
     const transaction =
       await this.transactionsService.create(createTransactionDto);
@@ -39,6 +61,12 @@ export class TransactionsController {
   }
 
   @Get()
+  @ApiQuery({ name: 'type', enum: TransactionType, required: false })
+  @ApiOkResponse({ description: 'Transactions found', type: [Transaction] })
+  @ApiNotFoundResponse({
+    description: 'Transactions not found',
+    type: ApiException,
+  })
   async findAll(
     @Req() req: Request & { user: TokenPayload },
     @Query('type') transactionType: TransactionType,
