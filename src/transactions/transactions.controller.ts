@@ -10,6 +10,8 @@ import {
   ValidationPipe,
   Req,
   Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -28,6 +30,7 @@ import {
 } from '@nestjs/swagger';
 import { Transaction } from './entities/transaction.entity';
 import { ApiException } from 'src/utils/exception.entity';
+import { PaginatedResponse } from 'src/utils/responses';
 
 @Controller('transactions')
 @UseGuards(AuthGuard)
@@ -62,7 +65,21 @@ export class TransactionsController {
 
   @Get()
   @ApiQuery({ name: 'type', enum: TransactionType, required: false })
-  @ApiOkResponse({ description: 'Transactions found', type: [Transaction] })
+  @ApiQuery({ name: 'page', description: 'Page number', required: false })
+  @ApiQuery({ name: 'epp', description: 'Elements per page', required: false })
+  @ApiQuery({
+    name: 'startDate',
+    description: 'Start date',
+    required: false,
+    type: 'timestamp',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    description: 'End date',
+    required: false,
+    type: 'timestamp',
+  })
+  @ApiOkResponse({ description: 'Transactions found', type: PaginatedResponse })
   @ApiNotFoundResponse({
     description: 'Transactions not found',
     type: ApiException,
@@ -70,6 +87,20 @@ export class TransactionsController {
   async findAll(
     @Req() req: Request & { user: TokenPayload },
     @Query('type') transactionType: TransactionType,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('epp', new DefaultValuePipe(10), ParseIntPipe) epp: number,
+    @Query(
+      'startDate',
+      new DefaultValuePipe(new Date(2023, 0, 1).getTime()),
+      new ParseIntPipe(),
+    )
+    startDate: number | null,
+    @Query(
+      'endDate',
+      new DefaultValuePipe(new Date().getTime()),
+      new ParseIntPipe(),
+    )
+    endDate: number | null,
   ) {
     const { id: userId } = req.user;
 
@@ -78,7 +109,23 @@ export class TransactionsController {
     if (transactionType === TransactionType.EXPENSES)
       return await this.transactionsService.findExpensesByUserId(userId);
 
-    return await this.transactionsService.findAllByUserId(userId);
+    const { transactionsFound, transactionsNumber } =
+      await this.transactionsService.findAllByUserId(
+        userId,
+        page,
+        epp,
+        startDate,
+        endDate,
+      );
+
+    const response = new PaginatedResponse(
+      transactionsFound,
+      page,
+      epp,
+      transactionsNumber,
+    );
+
+    return response;
   }
 
   @Get(':id')

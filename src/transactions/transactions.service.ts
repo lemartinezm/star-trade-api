@@ -71,22 +71,42 @@ export class TransactionsService {
     return `This action returns all transactions`;
   }
 
-  async findAllByUserId(userId: number) {
-    const transactionsFound = await this.transactionsRepository.find({
-      where: [
-        { sourceAccount: { user: { id: userId } } },
-        { destinationAccount: { user: { id: userId } } },
-      ],
-      select: {
-        sourceAccount: { accountNumber: true },
-        destinationAccount: { accountNumber: true },
-      },
-      relations: { sourceAccount: true, destinationAccount: true },
-      order: { createdAt: 'DESC' },
-    });
+  async findAllByUserId(
+    userId: number,
+    page: number,
+    epp: number,
+    startDate: number | null,
+    endDate: number | null,
+  ) {
+    const [transactionsFound, transactionsNumber] =
+      await this.transactionsRepository
+        .createQueryBuilder('transaction')
+        .leftJoinAndSelect('transaction.sourceAccount', 'sourceAccount')
+        .leftJoinAndSelect(
+          'transaction.destinationAccount',
+          'destinationAccount',
+        )
+        .select([
+          'transaction',
+          'sourceAccount.accountNumber',
+          'destinationAccount.accountNumber',
+        ])
+        .where('transaction.createdAt >= :startDate', {
+          startDate: new Date(startDate),
+        })
+        .andWhere('transaction.createdAt < :endDate', {
+          endDate: new Date(endDate),
+        })
+        .andWhere('sourceAccount.user = :userId', { userId })
+        .orWhere('destinationAccount.user = :userId', { userId })
+        .orderBy('transaction.createdAt', 'DESC')
+        .skip((page - 1) * epp)
+        .take(epp)
+        .getManyAndCount();
+
     if (transactionsFound.length <= 0)
       throw new NotFoundException('No transactions were found for the user');
-    return transactionsFound;
+    return { transactionsFound, transactionsNumber };
   }
 
   async findIncomesByUserId(userId: number) {
