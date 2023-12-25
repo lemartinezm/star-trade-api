@@ -109,32 +109,78 @@ export class TransactionsService {
     return { transactionsFound, transactionsNumber };
   }
 
-  async findIncomesByUserId(userId: number) {
-    const transactionsFound = await this.transactionsRepository.find({
-      where: [{ destinationAccount: { user: { id: userId } } }],
-      select: {
-        sourceAccount: { accountNumber: true },
-        destinationAccount: { accountNumber: true },
-      },
-      relations: { sourceAccount: true, destinationAccount: true },
-    });
+  async findIncomesByUserId(
+    userId: number,
+    page: number,
+    epp: number,
+    startDate: number | null,
+    endDate: number | null,
+  ) {
+    const [transactionsFound, transactionsNumber] =
+      await this.transactionsRepository
+        .createQueryBuilder('transaction')
+        .leftJoinAndSelect('transaction.sourceAccount', 'sourceAccount')
+        .leftJoinAndSelect(
+          'transaction.destinationAccount',
+          'destinationAccount',
+        )
+        .select([
+          'transaction',
+          'sourceAccount.accountNumber',
+          'destinationAccount.accountNumber',
+        ])
+        .where('transaction.createdAt >= :startDate', {
+          startDate: new Date(startDate),
+        })
+        .andWhere('transaction.createdAt < :endDate', {
+          endDate: new Date(endDate),
+        })
+        .andWhere('destinationAccount.user = :userId', { userId })
+        .orderBy('transaction.createdAt', 'DESC')
+        .skip((page - 1) * epp)
+        .take(epp)
+        .getManyAndCount();
+
     if (transactionsFound.length <= 0)
       throw new NotFoundException('No transactions were found for the user');
-    return transactionsFound;
+    return { transactionsFound, transactionsNumber };
   }
 
-  async findExpensesByUserId(userId: number) {
-    const transactionsFound = await this.transactionsRepository.find({
-      where: [{ sourceAccount: { user: { id: userId } } }],
-      select: {
-        sourceAccount: { accountNumber: true },
-        destinationAccount: { accountNumber: true },
-      },
-      relations: { sourceAccount: true, destinationAccount: true },
-    });
+  async findExpensesByUserId(
+    userId: number,
+    page: number,
+    epp: number,
+    startDate: number | null,
+    endDate: number | null,
+  ) {
+    const [transactionsFound, transactionsNumber] =
+      await this.transactionsRepository
+        .createQueryBuilder('transaction')
+        .leftJoinAndSelect('transaction.sourceAccount', 'sourceAccount')
+        .leftJoinAndSelect(
+          'transaction.destinationAccount',
+          'destinationAccount',
+        )
+        .select([
+          'transaction',
+          'sourceAccount.accountNumber',
+          'destinationAccount.accountNumber',
+        ])
+        .where('transaction.createdAt >= :startDate', {
+          startDate: new Date(startDate),
+        })
+        .andWhere('transaction.createdAt < :endDate', {
+          endDate: new Date(endDate),
+        })
+        .andWhere('sourceAccount.user = :userId', { userId })
+        .orderBy('transaction.createdAt', 'DESC')
+        .skip((page - 1) * epp)
+        .take(epp)
+        .getManyAndCount();
+
     if (transactionsFound.length <= 0)
       throw new NotFoundException('No transactions were found for the user');
-    return transactionsFound;
+    return { transactionsFound, transactionsNumber };
   }
 
   findOne(id: number) {

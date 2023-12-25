@@ -104,10 +104,45 @@ export class TransactionsController {
   ) {
     const { id: userId } = req.user;
 
-    if (transactionType === TransactionType.INCOMES)
-      return await this.transactionsService.findIncomesByUserId(userId);
-    if (transactionType === TransactionType.EXPENSES)
-      return await this.transactionsService.findExpensesByUserId(userId);
+    if (transactionType === TransactionType.INCOMES) {
+      const { transactionsFound, transactionsNumber } =
+        await this.transactionsService.findIncomesByUserId(
+          userId,
+          page,
+          epp,
+          startDate,
+          endDate,
+        );
+
+      const response = new PaginatedResponse(
+        transactionsFound,
+        page,
+        epp,
+        transactionsNumber,
+      );
+
+      return response;
+    }
+
+    if (transactionType === TransactionType.EXPENSES) {
+      const { transactionsFound, transactionsNumber } =
+        await this.transactionsService.findExpensesByUserId(
+          userId,
+          page,
+          epp,
+          startDate,
+          endDate,
+        );
+
+      const response = new PaginatedResponse(
+        transactionsFound,
+        page,
+        epp,
+        transactionsNumber,
+      );
+
+      return response;
+    }
 
     const { transactionsFound, transactionsNumber } =
       await this.transactionsService.findAllByUserId(
