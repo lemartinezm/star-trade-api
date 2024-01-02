@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AccountsService } from 'src/accounts/accounts.service';
@@ -91,14 +91,22 @@ export class TransactionsService {
           'sourceAccount.accountNumber',
           'destinationAccount.accountNumber',
         ])
-        .where('transaction.createdAt >= :startDate', {
-          startDate: new Date(startDate),
-        })
-        .andWhere('transaction.createdAt < :endDate', {
-          endDate: new Date(endDate),
-        })
-        .andWhere('sourceAccount.user = :userId', { userId })
-        .orWhere('destinationAccount.user = :userId', { userId })
+        .where(
+          'transaction.createdAt >= :startDate AND transaction.createdAt < :endDate',
+          {
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+          },
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where('sourceAccount.user = :sourceUserId', {
+              sourceUserId: userId,
+            }).orWhere('destinationAccount.user = :destinationUserId', {
+              destinationUserId: userId,
+            });
+          }),
+        )
         .orderBy('transaction.createdAt', 'DESC')
         .skip((page - 1) * epp)
         .take(epp)
@@ -129,12 +137,13 @@ export class TransactionsService {
           'sourceAccount.accountNumber',
           'destinationAccount.accountNumber',
         ])
-        .where('transaction.createdAt >= :startDate', {
-          startDate: new Date(startDate),
-        })
-        .andWhere('transaction.createdAt < :endDate', {
-          endDate: new Date(endDate),
-        })
+        .where(
+          'transaction.createdAt >= :startDate AND transaction.createdAt < :endDate',
+          {
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+          },
+        )
         .andWhere('destinationAccount.user = :userId', { userId })
         .orderBy('transaction.createdAt', 'DESC')
         .skip((page - 1) * epp)
@@ -166,12 +175,13 @@ export class TransactionsService {
           'sourceAccount.accountNumber',
           'destinationAccount.accountNumber',
         ])
-        .where('transaction.createdAt >= :startDate', {
-          startDate: new Date(startDate),
-        })
-        .andWhere('transaction.createdAt < :endDate', {
-          endDate: new Date(endDate),
-        })
+        .where(
+          'transaction.createdAt >= :startDate AND transaction.createdAt < :endDate',
+          {
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+          },
+        )
         .andWhere('sourceAccount.user = :userId', { userId })
         .orderBy('transaction.createdAt', 'DESC')
         .skip((page - 1) * epp)
