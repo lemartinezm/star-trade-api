@@ -141,7 +141,7 @@ export class TransactionsService {
           'transaction.createdAt >= :startDate AND transaction.createdAt < :endDate',
           {
             startDate: new Date(startDate),
-            endDate: new Date(endDate),
+            endDate: endDate ? new Date(endDate) : new Date(),
           },
         )
         .andWhere('destinationAccount.user = :userId', { userId })
@@ -179,7 +179,7 @@ export class TransactionsService {
           'transaction.createdAt >= :startDate AND transaction.createdAt < :endDate',
           {
             startDate: new Date(startDate),
-            endDate: new Date(endDate),
+            endDate: endDate ? new Date(endDate) : new Date(),
           },
         )
         .andWhere('sourceAccount.user = :userId', { userId })
