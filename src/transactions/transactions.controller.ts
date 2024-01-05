@@ -97,8 +97,8 @@ export class TransactionsController {
     startDate: number | null,
     @Query(
       'endDate',
-      new DefaultValuePipe(new Date().getTime()),
-      new ParseIntPipe(),
+      new DefaultValuePipe(null),
+      new ParseIntPipe({ optional: true }),
     )
     endDate: number | null,
   ) {

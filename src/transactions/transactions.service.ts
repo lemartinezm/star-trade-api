@@ -95,7 +95,7 @@ export class TransactionsService {
           'transaction.createdAt >= :startDate AND transaction.createdAt < :endDate',
           {
             startDate: new Date(startDate),
-            endDate: new Date(endDate),
+            endDate: endDate ? new Date(endDate) : new Date(),
           },
         )
         .andWhere(
